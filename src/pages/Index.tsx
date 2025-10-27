@@ -16,7 +16,8 @@ interface Meme {
   id: number;
   title: string;
   description: string;
-  imageUrl: string;
+  mediaUrl: string;
+  mediaType: 'image' | 'video';
   category: 'popular' | 'new' | 'old';
   tags: string[];
 }
@@ -148,23 +149,26 @@ const SAMPLE_MEMES: Meme[] = [
     id: 1,
     title: 'Distracted Boyfriend',
     description: 'Man looking at another woman while his girlfriend looks disapproving',
-    imageUrl: 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=400&h=300&fit=crop',
+    mediaUrl: 'https://cdn.poehali.dev/projects/bec87bec-1508-47d4-b95c-e4f127d771cb/files/85aee34e-dc44-4f84-bd26-221b00123fbb.jpg',
+    mediaType: 'image',
     category: 'popular',
     tags: ['relationship', 'choice', 'distraction']
   },
   {
     id: 2,
-    title: 'Drake Hotline Bling',
-    description: 'Drake rejecting something vs approving something else',
-    imageUrl: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop',
-    category: 'popular',
-    tags: ['preference', 'choice', 'approval']
+    title: 'Dancing Baby',
+    description: 'Classic 90s 3D animated baby dancing',
+    mediaUrl: 'https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_1mb.mp4',
+    mediaType: 'video',
+    category: 'old',
+    tags: ['classic', '90s', 'dancing', 'baby']
   },
   {
     id: 3,
     title: 'Woman Yelling at Cat',
     description: 'Angry woman pointing at confused cat at dinner table',
-    imageUrl: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&h=300&fit=crop',
+    mediaUrl: 'https://cdn.poehali.dev/projects/bec87bec-1508-47d4-b95c-e4f127d771cb/files/d33b31a5-bd89-43a3-83ee-6f712c477653.jpg',
+    mediaType: 'image',
     category: 'new',
     tags: ['argument', 'confusion', 'cat']
   },
@@ -172,41 +176,46 @@ const SAMPLE_MEMES: Meme[] = [
     id: 4,
     title: 'Success Kid',
     description: 'Baby making fist pump gesture on beach',
-    imageUrl: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400&h=300&fit=crop',
+    mediaUrl: 'https://cdn.poehali.dev/projects/bec87bec-1508-47d4-b95c-e4f127d771cb/files/83d2d203-0400-4cb7-b449-47b7655bee4e.jpg',
+    mediaType: 'image',
     category: 'old',
     tags: ['success', 'victory', 'baby']
   },
   {
     id: 5,
-    title: 'Surprised Pikachu',
-    description: 'Pikachu with shocked expression',
-    imageUrl: 'https://images.unsplash.com/photo-1606604748010-c0de0d30ff3c?w=400&h=300&fit=crop',
+    title: 'Nyan Cat',
+    description: 'Pixel cat flying through space with rainbow trail',
+    mediaUrl: 'https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_2mb.mp4',
+    mediaType: 'video',
     category: 'popular',
-    tags: ['shock', 'surprise', 'pokemon']
+    tags: ['cat', 'rainbow', 'pixel', 'flying']
   },
   {
     id: 6,
-    title: 'This Is Fine',
-    description: 'Dog sitting in room on fire saying everything is fine',
-    imageUrl: 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?w=400&h=300&fit=crop',
+    title: 'Rickroll',
+    description: 'Never gonna give you up, never gonna let you down',
+    mediaUrl: 'https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_5mb.mp4',
+    mediaType: 'video',
     category: 'popular',
-    tags: ['chaos', 'denial', 'dog']
+    tags: ['rick', 'music', 'trolling', 'classic']
   },
   {
     id: 7,
     title: 'Expanding Brain',
     description: 'Brain getting bigger with increasingly complex ideas',
-    imageUrl: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=300&fit=crop',
+    mediaUrl: 'https://via.placeholder.com/400x300/9333ea/ffffff?text=Expanding+Brain',
+    mediaType: 'image',
     category: 'new',
     tags: ['intelligence', 'progression', 'brain']
   },
   {
     id: 8,
-    title: 'Hide the Pain Harold',
-    description: 'Older man with forced smile hiding internal pain',
-    imageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=300&fit=crop',
+    title: 'Charlie Bit My Finger',
+    description: 'Little boy biting his brother finger',
+    mediaUrl: 'https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_10mb.mp4',
+    mediaType: 'video',
     category: 'old',
-    tags: ['pain', 'smile', 'hiding']
+    tags: ['kids', 'brother', 'bite', 'viral']
   }
 ];
 
@@ -356,12 +365,35 @@ const Index = () => {
                 className="group overflow-hidden border hover:border-primary/50 transition-all cursor-pointer animate-fade-in"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className="relative aspect-video overflow-hidden">
-                  <img
-                    src={meme.imageUrl}
-                    alt={meme.title}
-                    className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                  />
+                <div className="relative aspect-video overflow-hidden bg-muted">
+                  {meme.mediaType === 'image' ? (
+                    <img
+                      src={meme.mediaUrl}
+                      alt={meme.title}
+                      className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <video
+                      src={meme.mediaUrl}
+                      className="w-full h-full object-cover"
+                      controls
+                      preload="metadata"
+                      loop
+                      muted
+                    />
+                  )}
+                  <Badge
+                    variant="secondary"
+                    className="absolute top-2 left-2 text-xs"
+                  >
+                    <Icon
+                      name={meme.mediaType === 'image' ? 'Image' : 'Video'}
+                      size={12}
+                      className="mr-1"
+                    />
+                    {meme.mediaType === 'image' ? 'IMG' : 'VID'}
+                  </Badge>
                   <Button
                     size="icon"
                     variant="secondary"
