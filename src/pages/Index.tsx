@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -20,6 +20,9 @@ interface Meme {
   mediaType: 'image' | 'video';
   category: 'popular' | 'new' | 'old';
   tags: string[];
+  isFavorite?: boolean;
+  viewsCount?: number;
+  favoritesCount?: number;
 }
 
 const translations: Record<string, {
@@ -36,6 +39,8 @@ const translations: Record<string, {
   selectLanguage: string;
   favorite: string;
   unfavorite: string;
+  loading: string;
+  noMemes: string;
 }> = {
   en: {
     title: 'MemeVerse',
@@ -50,7 +55,9 @@ const translations: Record<string, {
     },
     selectLanguage: 'Select your language',
     favorite: 'Add to favorites',
-    unfavorite: 'Remove from favorites'
+    unfavorite: 'Remove from favorites',
+    loading: 'Loading memes...',
+    noMemes: 'No memes found'
   },
   ru: {
     title: 'МемВселенная',
@@ -65,7 +72,9 @@ const translations: Record<string, {
     },
     selectLanguage: 'Выберите язык',
     favorite: 'В избранное',
-    unfavorite: 'Удалить из избранного'
+    unfavorite: 'Удалить из избранного',
+    loading: 'Загрузка мемов...',
+    noMemes: 'Мемы не найдены'
   },
   es: {
     title: 'MemeVerso',
@@ -80,7 +89,9 @@ const translations: Record<string, {
     },
     selectLanguage: 'Selecciona tu idioma',
     favorite: 'Añadir a favoritos',
-    unfavorite: 'Quitar de favoritos'
+    unfavorite: 'Quitar de favoritos',
+    loading: 'Cargando memes...',
+    noMemes: 'No se encontraron memes'
   },
   fr: {
     title: 'MemeVers',
@@ -95,7 +106,9 @@ const translations: Record<string, {
     },
     selectLanguage: 'Sélectionnez votre langue',
     favorite: 'Ajouter aux favoris',
-    unfavorite: 'Retirer des favoris'
+    unfavorite: 'Retirer des favoris',
+    loading: 'Chargement des memes...',
+    noMemes: 'Aucun meme trouvé'
   },
   de: {
     title: 'MemeWelt',
@@ -110,7 +123,9 @@ const translations: Record<string, {
     },
     selectLanguage: 'Wähle deine Sprache',
     favorite: 'Zu Favoriten hinzufügen',
-    unfavorite: 'Aus Favoriten entfernen'
+    unfavorite: 'Aus Favoriten entfernen',
+    loading: 'Memes werden geladen...',
+    noMemes: 'Keine Memes gefunden'
   },
   ja: {
     title: 'ミームバース',
@@ -125,7 +140,9 @@ const translations: Record<string, {
     },
     selectLanguage: '言語を選択',
     favorite: 'お気に入りに追加',
-    unfavorite: 'お気に入りから削除'
+    unfavorite: 'お気に入りから削除',
+    loading: 'ミームを読み込んでいます...',
+    noMemes: 'ミームが見つかりません'
   },
   ko: {
     title: '밈버스',
@@ -140,119 +157,92 @@ const translations: Record<string, {
     },
     selectLanguage: '언어 선택',
     favorite: '즐겨찾기 추가',
-    unfavorite: '즐겨찾기 제거'
+    unfavorite: '즐겨찾기 제거',
+    loading: '밈 로딩 중...',
+    noMemes: '밈을 찾을 수 없습니다'
   }
 };
 
-const SAMPLE_MEMES: Meme[] = [
-  {
-    id: 1,
-    title: 'Distracted Boyfriend',
-    description: 'Man looking at another woman while his girlfriend looks disapproving',
-    mediaUrl: 'https://cdn.poehali.dev/projects/bec87bec-1508-47d4-b95c-e4f127d771cb/files/85aee34e-dc44-4f84-bd26-221b00123fbb.jpg',
-    mediaType: 'image',
-    category: 'popular',
-    tags: ['relationship', 'choice', 'distraction']
-  },
-  {
-    id: 2,
-    title: 'Dancing Baby',
-    description: 'Classic 90s 3D animated baby dancing',
-    mediaUrl: 'https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_1mb.mp4',
-    mediaType: 'video',
-    category: 'old',
-    tags: ['classic', '90s', 'dancing', 'baby']
-  },
-  {
-    id: 3,
-    title: 'Woman Yelling at Cat',
-    description: 'Angry woman pointing at confused cat at dinner table',
-    mediaUrl: 'https://cdn.poehali.dev/projects/bec87bec-1508-47d4-b95c-e4f127d771cb/files/d33b31a5-bd89-43a3-83ee-6f712c477653.jpg',
-    mediaType: 'image',
-    category: 'new',
-    tags: ['argument', 'confusion', 'cat']
-  },
-  {
-    id: 4,
-    title: 'Success Kid',
-    description: 'Baby making fist pump gesture on beach',
-    mediaUrl: 'https://cdn.poehali.dev/projects/bec87bec-1508-47d4-b95c-e4f127d771cb/files/83d2d203-0400-4cb7-b449-47b7655bee4e.jpg',
-    mediaType: 'image',
-    category: 'old',
-    tags: ['success', 'victory', 'baby']
-  },
-  {
-    id: 5,
-    title: 'Nyan Cat',
-    description: 'Pixel cat flying through space with rainbow trail',
-    mediaUrl: 'https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_2mb.mp4',
-    mediaType: 'video',
-    category: 'popular',
-    tags: ['cat', 'rainbow', 'pixel', 'flying']
-  },
-  {
-    id: 6,
-    title: 'Rickroll',
-    description: 'Never gonna give you up, never gonna let you down',
-    mediaUrl: 'https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_5mb.mp4',
-    mediaType: 'video',
-    category: 'popular',
-    tags: ['rick', 'music', 'trolling', 'classic']
-  },
-  {
-    id: 7,
-    title: 'Expanding Brain',
-    description: 'Brain getting bigger with increasingly complex ideas',
-    mediaUrl: 'https://via.placeholder.com/400x300/9333ea/ffffff?text=Expanding+Brain',
-    mediaType: 'image',
-    category: 'new',
-    tags: ['intelligence', 'progression', 'brain']
-  },
-  {
-    id: 8,
-    title: 'Charlie Bit My Finger',
-    description: 'Little boy biting his brother finger',
-    mediaUrl: 'https://sample-videos.com/video321/mp4/240/big_buck_bunny_240p_10mb.mp4',
-    mediaType: 'video',
-    category: 'old',
-    tags: ['kids', 'brother', 'bite', 'viral']
-  }
-];
+const MEMES_API_URL = 'https://functions.poehali.dev/6670d844-fe29-4657-be22-1a8556a88064';
 
 const Index = () => {
   const [language, setLanguage] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [favorites, setFavorites] = useState<number[]>([]);
+  const [memes, setMemes] = useState<Meme[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [userId] = useState(() => `user_${Math.random().toString(36).substr(2, 9)}`);
 
   const t = translations[language || 'en'];
 
-  const filteredMemes = useMemo(() => {
-    let filtered = SAMPLE_MEMES;
-
-    if (selectedCategory === 'favorites') {
-      filtered = filtered.filter(meme => favorites.includes(meme.id));
-    } else if (selectedCategory !== 'all') {
-      filtered = filtered.filter(meme => meme.category === selectedCategory);
+  useEffect(() => {
+    if (language) {
+      loadMemes();
     }
+  }, [language, selectedCategory]);
 
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(meme => 
-        meme.title.toLowerCase().includes(query) ||
-        meme.description.toLowerCase().includes(query) ||
-        meme.tags.some(tag => tag.toLowerCase().includes(query))
-      );
+  const loadMemes = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (selectedCategory !== 'all') {
+        params.append('category', selectedCategory);
+      }
+      
+      const response = await fetch(`${MEMES_API_URL}?${params.toString()}`, {
+        headers: {
+          'X-User-Id': userId
+        }
+      });
+      const data = await response.json();
+      setMemes(data.memes || []);
+    } catch (error) {
+      console.error('Failed to load memes:', error);
+      setMemes([]);
+    } finally {
+      setLoading(false);
     }
-
-    return filtered;
-  }, [searchQuery, selectedCategory, favorites]);
-
-  const toggleFavorite = (id: number) => {
-    setFavorites(prev => 
-      prev.includes(id) ? prev.filter(fav => fav !== id) : [...prev, id]
-    );
   };
+
+  const filteredMemes = useMemo(() => {
+    if (!searchQuery.trim()) return memes;
+    
+    const query = searchQuery.toLowerCase();
+    return memes.filter(meme => 
+      meme.title.toLowerCase().includes(query) ||
+      meme.description.toLowerCase().includes(query) ||
+      meme.tags.some(tag => tag.toLowerCase().includes(query))
+    );
+  }, [searchQuery, memes]);
+
+  const toggleFavorite = async (memeId: number) => {
+    try {
+      const response = await fetch(MEMES_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': userId
+        },
+        body: JSON.stringify({
+          action: 'toggle_favorite',
+          meme_id: memeId
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setMemes(prev => prev.map(meme => 
+          meme.id === memeId 
+            ? { ...meme, isFavorite: data.isFavorite }
+            : meme
+        ));
+      }
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+    }
+  };
+
+  const favoritesCount = memes.filter(m => m.isFavorite).length;
 
   if (!language) {
     return (
@@ -345,17 +335,22 @@ const Index = () => {
                 <Icon name="Heart" size={14} className="mr-1" />
               )}
               {t.categories[category]}
-              {category === 'favorites' && favorites.length > 0 && (
-                <span className="ml-1">({favorites.length})</span>
+              {category === 'favorites' && favoritesCount > 0 && (
+                <span className="ml-1">({favoritesCount})</span>
               )}
             </Badge>
           ))}
         </div>
 
-        {filteredMemes.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-20">
+            <Icon name="Loader2" size={64} className="mx-auto mb-4 text-primary animate-spin" />
+            <p className="text-xl text-muted-foreground">{t.loading}</p>
+          </div>
+        ) : filteredMemes.length === 0 ? (
           <div className="text-center py-20">
             <Icon name="SearchX" size={64} className="mx-auto mb-4 text-muted-foreground" />
-            <p className="text-xl text-muted-foreground">No memes found</p>
+            <p className="text-xl text-muted-foreground">{t.noMemes}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -406,7 +401,7 @@ const Index = () => {
                     <Icon
                       name="Heart"
                       size={18}
-                      className={favorites.includes(meme.id) ? 'fill-current text-secondary' : ''}
+                      className={meme.isFavorite ? 'fill-current text-secondary' : ''}
                     />
                   </Button>
                 </div>
