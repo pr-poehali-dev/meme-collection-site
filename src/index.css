@@ -15,16 +15,16 @@
     --popover: 230 25% 18%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 189 94% 43%;
-    --primary-foreground: 222 47% 11%;
+    --primary: 271 91% 65%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 330 81% 60%;
+    --secondary: 280 80% 55%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 230 20% 25%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 189 94% 43%;
+    --accent: 271 91% 65%;
     --accent-foreground: 222 47% 11%;
 
     --destructive: 0 84% 60%;
@@ -32,18 +32,18 @@
 
     --border: 230 20% 25%;
     --input: 230 20% 25%;
-    --ring: 189 94% 43%;
+    --ring: 271 91% 65%;
 
     --radius: 0.75rem;
 
     --sidebar-background: 222 47% 11%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 189 94% 43%;
-    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-primary: 271 91% 65%;
+    --sidebar-primary-foreground: 210 40% 98%;
     --sidebar-accent: 230 25% 18%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 230 20% 25%;
-    --sidebar-ring: 189 94% 43%;
+    --sidebar-ring: 271 91% 65%;
   }
 }
 
@@ -55,24 +55,5 @@
   body {
     @apply bg-background text-foreground;
     font-family: "Rubik", sans-serif;
-  }
-}
-
-@layer utilities {
-  .neon-glow {
-    box-shadow:
-      0 0 10px hsl(var(--primary)),
-      0 0 20px hsl(var(--primary));
-  }
-
-  .neon-text {
-    text-shadow:
-      0 0 10px hsl(var(--primary)),
-      0 0 20px hsl(var(--primary));
-  }
-
-  .neon-border {
-    border: 1px solid hsl(var(--primary));
-    box-shadow: 0 0 5px hsl(var(--primary));
   }
 }

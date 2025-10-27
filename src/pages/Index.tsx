@@ -251,7 +251,7 @@ const Index = () => {
         <Dialog open={true}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle className="text-2xl text-center neon-text">
+              <DialogTitle className="text-2xl text-center text-primary">
                 🌍 Select Language / Выберите язык
               </DialogTitle>
               <DialogDescription className="text-center text-muted-foreground">
@@ -264,7 +264,7 @@ const Index = () => {
                   key={lang}
                   onClick={() => setLanguage(lang)}
                   variant="outline"
-                  className="h-16 text-lg font-medium neon-border hover:neon-glow transition-all"
+                  className="h-16 text-lg font-medium border-primary/50 hover:border-primary hover:bg-primary/10 transition-all"
                 >
                   {lang === 'en' && '🇬🇧 English'}
                   {lang === 'ru' && '🇷🇺 Русский'}
@@ -287,14 +287,14 @@ const Index = () => {
       <header className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-4xl font-bold neon-text animate-glow-pulse">
+            <h1 className="text-4xl font-bold text-primary">
               {t.title}
             </h1>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setLanguage(null)}
-              className="neon-border"
+              className="border-primary/50 hover:border-primary"
             >
               <Icon name="Globe" className="mr-2" size={16} />
               {language.toUpperCase()}
@@ -313,7 +313,7 @@ const Index = () => {
               placeholder={t.search}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-12 text-lg neon-border focus:neon-glow transition-all"
+              className="pl-10 h-12 text-lg border-primary/30 focus:border-primary transition-all"
             />
           </div>
         </div>
@@ -327,8 +327,8 @@ const Index = () => {
               variant={selectedCategory === category ? 'default' : 'outline'}
               className={`cursor-pointer px-4 py-2 text-sm whitespace-nowrap transition-all ${
                 selectedCategory === category 
-                  ? 'neon-glow' 
-                  : 'hover:neon-border'
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'hover:border-primary/50'
               }`}
               onClick={() => setSelectedCategory(category)}
             >
@@ -353,7 +353,7 @@ const Index = () => {
             {filteredMemes.map((meme, index) => (
               <Card
                 key={meme.id}
-                className="group overflow-hidden neon-border hover:neon-glow transition-all cursor-pointer animate-fade-in"
+                className="group overflow-hidden border hover:border-primary/50 transition-all cursor-pointer animate-fade-in"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div className="relative aspect-video overflow-hidden">
